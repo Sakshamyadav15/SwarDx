@@ -1,0 +1,39 @@
+# Python cache and environments
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.python-version
+
+# Notebook artifacts
+.ipynb_checkpoints/
+
+# Local-only root helper scripts
+start_backend.ps1
+start_frontend.ps1
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.vercel/
+frontend/.env*
+frontend/next-env.d.ts
+
+# Keep lock files tracked for reproducible installs
+# frontend/package-lock.json
+# frontend/pnpm-lock.yaml
