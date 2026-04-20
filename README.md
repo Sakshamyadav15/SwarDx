@@ -1,120 +1,98 @@
-# SwarDx
+# SwarDx: Voice-Based Parkinson's Disease Screening
 
-SwarDx is a voice-based Parkinson's disease screening prototype that combines acoustic feature engineering with an XGBoost classifier and a web interface for audio upload or microphone recording.
+SwarDx (formerly VoicePD) is an intelligent, voice-based screening application that analyzes audio recordings to detect vocal biomarkers associated with Parkinson's Disease. It combines a robust Machine Learning pipeline with an interactive web interface, allowing users to upload audio or record directly from their microphone for evaluation.
 
-The project contains:
-- A Python inference backend built with FastAPI.
-- A Next.js frontend for recording/uploading and viewing model results.
-- Trained model artifacts and feature metadata used at runtime.
-- A standalone evaluation script for folder-level testing on healthy vs PD samples.
+## Key Features
 
-## Repository Structure
+- **Robust Audio Preprocessing**: Handles real-world microphone noise (from phones and laptops) using spectral noise gating (`noisereduce`), silence trimming (VAD via `librosa`), and strict sample rate normalization (16kHz).
+- **Advanced Feature Extraction**: Uses the **OpenSMILE** library to extract the **eGeMAPSv02** feature set (88 acoustic parameters), which are clinical standards for voice analysis.
+- **XGBoost Classifier**: An optimized, threshold-tuned XGBoost model mapped to real-time confidence scores.
+- **Explainable Metrics**: Breaks down predictions into vocal stability, pitch variation, and temporal consistency metrics on the frontend.
+- **Modern Full-Stack Architecture**: A fast Python/FastAPI backend paired with a responsive Next.js frontend integrating Radix UI components.
+
+## Repository Architecture
 
 ```text
-.
-|-- api_server.py                # FastAPI inference service
-|-- sample.py                    # Predictor and test folder evaluation script
-|-- opxg_model.json              # Trained XGBoost model
-|-- scaler.pkl                   # Trained StandardScaler
-|-- threshold.txt                # Decision threshold used in inference
-|-- feature_names.csv            # Expected feature ordering
-|-- feature_importance.csv       # Exported feature importance values
-|-- parkinson_opxg_robust.ipynb  # Training and experimentation notebook
-|-- test_audios/
+SwarDx/
+|-- api_server.py                # FastAPI backend serving the ML model
+|-- sample.py                    # Local evaluation script for batch testing
+|-- opxg_model.json              # Pre-trained XGBoost model weights
+|-- scaler.pkl                   # Scikit-Learn StandardScaler for features
+|-- threshold.txt                # Calibrated decision threshold
+|-- feature_names.csv            # Ordered feature names for validation
+|-- feature_importance.csv       # XGBoost feature importance scores
+|-- parkinson_opxg_robust.ipynb  # Training notebook (SMOTE + OpenSMILE + XGBoost)
+|-- test_audios/                 # Folder with sample .wav/.mp3 files 
 |   |-- healthy/
 |   `-- pd/
-`-- frontend/                    # Next.js application
+`-- frontend/                    # Next.js web application 
 ```
 
-## System Architecture
+## System Requirements
 
-1. The frontend sends an audio file to `frontend/app/api/predict/route.ts`.
-2. The Next.js route proxies the upload to the Python backend `/predict` endpoint.
-3. The backend loads model artifacts, preprocesses audio, extracts eGeMAPSv02 features, and runs classification.
-4. The frontend renders prediction confidence, feature explainability bars, and session history.
+- **Backend**: Python 3.10+
+- **Frontend**: Node.js 18+ and npm
+- **OS**: Windows, macOS, or Linux
 
-## Requirements
+## Setup & Run Instructions
 
-### Backend
-- Python 3.10+
-- A virtual environment is recommended
-
-Python packages used by inference:
-- fastapi
-- uvicorn
-- python-multipart
-- xgboost
-- opensmile
-- librosa
-- soundfile
-- noisereduce
-- scikit-learn
-- joblib
-- numpy
-
-### Frontend
-- Node.js 18+
-- npm 9+
-
-## Local Setup
-
-## 1) Clone repository
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Sakshamyadav15/SwarDx.git
 cd SwarDx
 ```
 
-## 2) Backend setup
-
+### 2. Start the Backend (FastAPI + ML)
+Open a terminal and set up a Python virtual environment:
 ```bash
+# Windows
 python -m venv .venv
-# Windows PowerShell
 .\.venv\Scripts\Activate.ps1
-pip install -U pip
+
+# Install core dependencies
 pip install fastapi uvicorn python-multipart xgboost opensmile librosa soundfile noisereduce scikit-learn joblib numpy
+
+# Run the API server
+uvicorn api_server:app --host 0.0.0.0 --port 8000
 ```
+*The backend API will be available at `http://localhost:8000`.*
 
-Run backend:
-
-```bash
-uvicorn api_server:app --host 0.0.0.0 --port 8000 --reload
-```
-
-Health check:
-
-```bash
-curl http://127.0.0.1:8000/health
-```
-
-## 3) Frontend setup
-
+### 3. Start the Frontend (Next.js)
+Open a **new** terminal:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+*The frontend application will be available at `http://localhost:3000`.*
 
-The frontend runs on `http://localhost:3000` by default.
+---
 
-## API Reference
+## Direct Model Evaluation (CLI)
 
-## `GET /health`
-Returns backend readiness.
+If you want to evaluate the model's performance directly on local audio files without the web UI, you can run the `sample.py` script. Place your testing audio files (.wav, .mp3, etc.) into the `test_audios/healthy` and `test_audios/pd` directories respectively.
 
-Example response:
-
-```json
-{
-  "status": "ok"
-}
+```bash
+# Ensure your virtual environment is activated
+python sample.py
 ```
 
-## `POST /predict`
-Accepts multipart upload with field name `file`.
+The script processes all audio files in the directories, extracts the OpenSMILE features, runs the XGBoost model, and outputs inference metrics including:
+- Accuracy, Precision, Recall, F1-Score, Specificity, ROC-AUC
+- A full Confusion Matrix
+- Identifications of failed or un-parseable audio samples
 
-Example response:
+---
 
+## API Documentation
+
+### `POST /predict`
+The primary endpoint to run inference on an audio file.
+
+**Request:**
+`multipart/form-data` with a single file field named `file` (supports .wav, .mp3, .ogg, etc.).
+
+**Response Details:**
 ```json
 {
   "prediction": "healthy",
@@ -134,29 +112,7 @@ Example response:
 }
 ```
 
-## Folder-Level Evaluation
-
-To evaluate the model against sample files in `test_audios/healthy` and `test_audios/pd`:
-
-```bash
-# from repository root with venv activated
-python sample.py
-```
-
-The script prints:
-- sample counts
-- accuracy, precision, recall, F1, specificity, ROC-AUC
-- confusion matrix
-- failed file examples (if any)
-
-## Notes on Local-Only Files
-
-Root helper scripts intended only for local development are excluded from version control via `.gitignore`:
-- `start_backend.ps1`
-- `start_frontend.ps1`
-
-This keeps repository history clean and portable across environments.
+---
 
 ## Disclaimer
-
-This project is a research and screening prototype. It is not a medical diagnostic device and should not be used as a substitute for clinical evaluation by qualified healthcare professionals.
+SwarDx is intended for research, prototype, and educational purposes only. It is **not a certified medical diagnostic device** and must not be used as a substitute for clinical evaluation by a healthcare professional.
