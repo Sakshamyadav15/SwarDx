@@ -1,3 +1,14 @@
+---
+title: Voice PD
+emoji: 🎤
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+hf_oauth: true
+pinned: false
+---
+
 # Voice-Based Parkinson's Disease Screening System
 
 ## Project Overview
