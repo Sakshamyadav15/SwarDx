@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     libsndfile1 \
     libsndfile1-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements file
@@ -28,10 +29,10 @@ RUN mkdir -p /app/models
 
 # Health check for container orchestration
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:7860/health')" || exit 1
+    CMD curl -f http://localhost:8000/docs || exit 1
 
-# Expose the port that Hugging Face Spaces will use
-EXPOSE 7860
+# Expose the port
+EXPOSE 8000
 
 # Run the FastAPI application
-CMD ["uvicorn", "api_server:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "api_server:app", "--host", "0.0.0.0", "--port", "8000"]
