@@ -4,6 +4,12 @@ import os
 import tempfile
 from contextlib import suppress
 from pathlib import Path
+import sys
+import numpy
+
+# Compatibility shim for Numpy 2.0 pickle loading
+if not hasattr(numpy, "_core"):
+    sys.modules["numpy._core"] = numpy
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
