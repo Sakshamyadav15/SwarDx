@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pnpm install && pnpm run build",
+  "installCommand": "pnpm install",
+  "env": {
+    "BACKEND_PREDICT_URL": "@backend_url"
+  },
+  "functions": {
+    "app/api/**": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}

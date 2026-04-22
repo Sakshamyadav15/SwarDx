@@ -8,19 +8,5 @@ services:
     plan: standard
     healthCheckPath: /docs
     envVars:
-      - key: PORT
-        value: 8000
       - key: PYTHONUNBUFFERED
         value: "1"
-    
-  # Frontend Service
-  - type: web
-    name: swardx-frontend
-    buildCommand: cd frontend && pnpm install && pnpm run build
-    startCommand: cd frontend && pnpm start
-    envVars:
-      - key: BACKEND_PREDICT_URL
-        value: https://swardx-backend.onrender.com/predict
-      - key: NODE_ENV
-        value: production
-    rootDir: ./
