@@ -1,6 +1,6 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.0.1
-torchvision==0.15.2
+-f https://download.pytorch.org/whl/torch_stable.html
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
