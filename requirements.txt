@@ -1,4 +1,6 @@
---extra-index-url https://download.pytorch.org/whl/cpu
+# ✅ Explicit wheel URLs for CPU‑only PyTorch – works on Hugging Face Spaces
+https://download.pytorch.org/whl/cpu/torch-2.0.1%2Bcpu-cp310-cp310-linux_x86_64.whl
+https://download.pytorch.org/whl/cpu/torchvision-0.15.2%2Bcpu-cp310-cp310-linux_x86_64.whl
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
@@ -6,8 +8,6 @@ xgboost==2.0.0
 librosa==0.10.0
 soundfile==0.12.1
 opensmile==2.4.2
-torch==2.0.1+cpu
-torchvision==0.15.2+cpu
 noisereduce==3.0.0
 scikit-learn==1.3.2
 joblib==1.3.2
