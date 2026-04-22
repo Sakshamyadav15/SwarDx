@@ -7,9 +7,13 @@ from pathlib import Path
 import sys
 import numpy
 
-# Compatibility shim for Numpy 2.0 pickle loading
+# Compatibility shim for Numpy 2.0 pickle loading in Numpy 1.x
 if not hasattr(numpy, "_core"):
-    sys.modules["numpy._core"] = numpy
+    try:
+        import numpy.core as core
+        sys.modules["numpy._core"] = core
+    except ImportError:
+        sys.modules["numpy._core"] = numpy
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
